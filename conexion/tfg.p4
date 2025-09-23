@@ -70,20 +70,19 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
 
-    // ---- Acción de DROP ----
-    action drop() {
+       action drop() {
         mark_to_drop(standard_metadata);
     }
 
-    // ---- Acción de FORWARD IPv4 ----
+
     action ipv4_forward(macAddr_t dstAddr, egressSpec_t port) {
         hdr.ethernet.dstAddr = dstAddr;
-        hdr.ethernet.srcAddr = 0x080000000000;
+        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
         standard_metadata.egress_spec = port;
         hdr.ipv4.ttl = hdr.ipv4.ttl - 1; // decrementa TTL
     }
 
-    // ---- Tabla de forwarding IPv4 ----
+
     table ipv4_lpm {
         key = {
             hdr.ipv4.dstAddr: lpm;
@@ -92,13 +91,12 @@ control MyIngress(inout headers hdr,
             ipv4_forward;
             drop;
             NoAction;
-        }
+       }
         size = 1024;
-        default_action = drop();
+        default_action = NoAction();
     }
 
 
-    // ---- Lógica de apply ----
     apply {
         if (hdr.ipv4.isValid()) {
             ipv4_lpm.apply();
