@@ -1,0 +1,13 @@
+{
+	"target": "bmv2",
+	"p4info": "build/tfg.p4.p4info.txtpb",
+	"bmv2_json": "build/tfg.json",
+	"table_entries": [
+		{
+			"table": "MyIngress.ipv4_lpm",
+			"default_action": true,
+			"action_name": "MyIngress.drop",
+			"action_params": {}
+		}
+	]
+}
